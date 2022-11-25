@@ -11,7 +11,16 @@ document.addEventListener(
   }
 );
 
-["resize", "fullscreenchange"].forEach(eventName => {
+document.addEventListener(
+  'DOMNodeRemoved',
+  (event) => {
+    setTimeout(() => {
+      makeVideoElementFullscreenable(event.target)
+    }, timeoutToCheckTags)
+  }
+);
+
+["click", "resize", "fullscreenchange"].forEach(eventName => {
   window.addEventListener(
     eventName,
     () => {
@@ -30,37 +39,63 @@ function makeVideoElementFullscreenable(element) {
 
   if (element.tagName !== "VIDEO") return
 
-  let firstFocusableParent = element
-  let findFirstFocusableParent = false
-  let reachedNullElement = false
+  let firstFocusableParent = element;
 
-  while (!findFirstFocusableParent && !reachedNullElement) {
+  let
+    climbedDOMLevelsCount = 0,
+    reachedNullElement = false,
+    reachedMaximumClimbLevels = false,
+    hasFoundTheFirstFoucusableParent = false;
+
+  do {
+    climbedDOMLevelsCount++;
+
     if (reachedNullElement) break
 
     const jsActionableElement = Array
       .from(firstFocusableParent.querySelectorAll("*[jsaction]"))
       .find(p => p.getAttribute("jsaction")?.includes("focusin"))
 
-    findFirstFocusableParent = !!jsActionableElement
+    hasFoundTheFirstFoucusableParent = !!jsActionableElement
 
-    firstFocusableParent = findFirstFocusableParent
+    firstFocusableParent = hasFoundTheFirstFoucusableParent
       ? jsActionableElement
       : firstFocusableParent.parentElement
 
     reachedNullElement = !firstFocusableParent
-  }
+    reachedMaximumClimbLevels = climbedDOMLevelsCount > 5
+  } while (
+    true
+    && !hasFoundTheFirstFoucusableParent
+    && !reachedNullElement
+    && !reachedMaximumClimbLevels
+  );
+
+  console.log({
+    count: climbedDOMLevelsCount,
+    element,
+    firstFocusableParent,
+    reachedMaximumClimbLevels
+  })
 
   if (reachedNullElement) return
 
-  /**
-   * Firefox equivalent implementation for querySelector(*:has(button):first-child)
-   */
-  const actionButtonsContainerElement = Array.from(
-    firstFocusableParent.querySelectorAll("*")
-  )
+  if (reachedMaximumClimbLevels) return
+
+  const containerElementToAddFullscreenButton = Array
+    .from(firstFocusableParent.querySelectorAll("*"))
     .find(element => element.querySelector("button"))
+    ?.parentElement
+    ?.parentElement
     ?.parentElement;
-  // End of implementation
+
+  if (!containerElementToAddFullscreenButton) return;
+
+  const buttonIsAlreadyAdded = containerElementToAddFullscreenButton.querySelector(
+    ".google-meet-fullscreen-button-container",
+  );
+
+  if (buttonIsAlreadyAdded) return;
 
   const fullscreenButtonElement = document.createElement("button")
   fullscreenButtonElement.classList.add("google-meet-fullscreen-button")
@@ -73,9 +108,10 @@ function makeVideoElementFullscreenable(element) {
     } else {
       document.exitFullscreen();
     }
-  })
+  });
 
-  const fullscreenButtonContainer = document.createElement("div")
+  const fullscreenButtonContainer = document.createElement("div");
+
   fullscreenButtonContainer.classList.add(
     "google-meet-fullscreen-button-container",
     "google-meet-fullscreen-hide",
@@ -92,8 +128,8 @@ function makeVideoElementFullscreenable(element) {
   fullscreenButtonElement.appendChild(buttonIconElement)
   fullscreenButtonContainer.appendChild(fullscreenButtonElement);
 
-  actionButtonsContainerElement.parentElement.parentElement.position = "relative";
-  actionButtonsContainerElement.parentElement.parentElement.appendChild(fullscreenButtonContainer);
+  containerElementToAddFullscreenButton.position = "relative";
+  containerElementToAddFullscreenButton.appendChild(fullscreenButtonContainer);
 
   ["mousemove", "mouseover"].forEach(eventName => {
     firstFocusableParent.addEventListener(eventName, () => {
