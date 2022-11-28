@@ -4,22 +4,16 @@
   "homepage_url": "https://github.com/angeloevangelista/google-meet-fullscreen",
   "version": "1.0.1",
   "manifest_version": 3,
-  "icons": { 
+  "icons": {
     "16": "./icons/16.png",
     "48": "./icons/48.png"
   },
   "content_scripts": [
     {
       "run_at": "document_end",
-      "js": [
-        "enable_fullscreen.js"
-      ],
-      "matches": [
-        "https://meet.google.com/*"
-      ]
+      "js": ["enable_fullscreen.js"],
+      "matches": ["https://meet.google.com/*"]
     }
   ],
-  "permissions": [
-    "scripting"
-  ]
+  "permissions": []
 }
