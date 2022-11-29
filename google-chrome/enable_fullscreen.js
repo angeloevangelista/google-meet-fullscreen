@@ -34,10 +34,11 @@ document.addEventListener(
 })
 
 function makeVideoElementFullscreenable(element) {
+  if (!element) return;
 
-  if (!element) return
+  if (element.tagName !== "VIDEO") return;
 
-  if (element.tagName !== "VIDEO") return
+  if (element.style?.display === "none") return;
 
   let firstFocusableParent = element;
 
