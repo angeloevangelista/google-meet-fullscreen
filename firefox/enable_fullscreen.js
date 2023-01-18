@@ -73,12 +73,12 @@ function makeVideoElementFullscreenable(element) {
     && !reachedMaximumClimbLevels
   );
 
-  console.log({
-    count: climbedDOMLevelsCount,
-    element,
-    firstFocusableParent,
-    reachedMaximumClimbLevels
-  })
+  // console.log({
+  //   count: climbedDOMLevelsCount,
+  //   element,
+  //   firstFocusableParent,
+  //   reachedMaximumClimbLevels
+  // })
 
   if (reachedNullElement) return
 
