@@ -153,23 +153,26 @@ const styles = document.createElement('style')
 
 styles.innerHTML = `
   .google-meet-fullscreen-hide {
-    display: none !important;
+    opacity: 0 !important;
   }
 
   .google-meet-fullscreen-button-container {
     position: absolute;
-    bottom: 0.8rem;
-    right: 0.8rem;
+    bottom: 4.6rem;
+    right: 1.2rem;
 
     display: flex;
     align-items: center;
     justify-content: center;
+    opacity: 100;
 
-    width: 2.4rem;
-    height: 2.4rem;
+    width: 2.8rem;
+    height: 2.8rem;
     border-radius: 50%;
-    background-color: #2b2c2f66;
-    border: 1px solid #3635356b ;
+    background-color: #2b2c2f80;
+    border: 1px solid #3635356b;
+
+    transition: 0.25s ease-in;
   }
 
   .google-meet-fullscreen-button {
