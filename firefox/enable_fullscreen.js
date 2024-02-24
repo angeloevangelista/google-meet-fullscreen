@@ -99,6 +99,9 @@ function makeVideoElementFullscreenable(element) {
 
   if (buttonIsAlreadyAdded) return;
 
+  const hasZoomButton = Array.from(firstFocusableParent.querySelectorAll('i'))
+    .some(p => p.innerHTML === "zoom_in");
+
   const fullscreenButtonElement = document.createElement("button")
   fullscreenButtonElement.classList.add("google-meet-fullscreen-button")
 
@@ -118,6 +121,10 @@ function makeVideoElementFullscreenable(element) {
     "google-meet-fullscreen-button-container",
     "google-meet-fullscreen-hide",
   );
+
+  if (hasZoomButton) {
+    fullscreenButtonContainer.classList.add("with-zoom-button");
+  }
 
   const buttonIconElement = document.createElement("i")
 
@@ -142,43 +149,55 @@ function makeVideoElementFullscreenable(element) {
   })
 
   firstFocusableParent.addEventListener("mouseleave", () => {
-    setTimeout(() => {
-      fullscreenButtonContainer.classList.add(
-        "google-meet-fullscreen-hide"
-      )
-    }, 500)
-  })
+    fullscreenButtonContainer.classList.add(
+      "google-meet-fullscreen-hide"
+    )
+  });
 }
 
 const styles = document.createElement('style')
 
 styles.innerHTML = `
-  .google-meet-fullscreen-hide {
+  .google-meet-fullscreen-hide:not(:hover) {
     opacity: 0 !important;
   }
 
   .google-meet-fullscreen-button-container {
     position: absolute;
-    bottom: 4.6rem;
+    bottom: 1.2rem;
     right: 1.2rem;
-
+    
     display: flex;
     align-items: center;
     justify-content: center;
-    opacity: 100;
-
+    
     width: 2.8rem;
     height: 2.8rem;
     border-radius: 50%;
     background-color: #2b2c2f80;
     border: 1px solid #3635356b;
-
+    overflow: hidden;
+    
+    cursor: pointer;
     transition: 0.25s ease-in;
   }
 
+  .google-meet-fullscreen-button-container.with-zoom-button {
+    bottom: 4.6rem;
+  }
+
+  .google-meet-fullscreen-button-container:hover {
+    filter: brightness(2);
+  }
+
   .google-meet-fullscreen-button {
-    background: none;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+
     border: none;
+    background: none;
+    transition: 0.25s ease-in;
   }
 `
 
