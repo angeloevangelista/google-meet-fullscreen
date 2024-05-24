@@ -1,6 +1,6 @@
 // this code will be executed after page load
 
-const timeoutToCheckTags = 1000
+const timeoutToCheckTags = 200
 
 document.addEventListener(
   'DOMNodeInserted',
@@ -34,7 +34,6 @@ document.addEventListener(
 })
 
 function makeVideoElementFullscreenable(element) {
-
   if (!element) return;
 
   if (element.tagName !== "VIDEO") return;
@@ -47,7 +46,7 @@ function makeVideoElementFullscreenable(element) {
     climbedDOMLevelsCount = 0,
     reachedNullElement = false,
     reachedMaximumClimbLevels = false,
-    hasFoundTheFirstFoucusableParent = false;
+    hasFoundTheFirstFocusableParent = false;
 
   do {
     climbedDOMLevelsCount++;
@@ -56,19 +55,19 @@ function makeVideoElementFullscreenable(element) {
 
     const jsActionableElement = Array
       .from(firstFocusableParent.querySelectorAll("*[jsaction]"))
-      .find(p => p.getAttribute("jsaction")?.includes("focusin"))
+      .find(p => p.querySelector("[data-is-tooltip-wrapper]"))
 
-    hasFoundTheFirstFoucusableParent = !!jsActionableElement
+    hasFoundTheFirstFocusableParent = !!jsActionableElement
 
-    firstFocusableParent = hasFoundTheFirstFoucusableParent
+    firstFocusableParent = hasFoundTheFirstFocusableParent
       ? jsActionableElement
       : firstFocusableParent.parentElement
 
     reachedNullElement = !firstFocusableParent
-    reachedMaximumClimbLevels = climbedDOMLevelsCount > 5
+    reachedMaximumClimbLevels = climbedDOMLevelsCount > 10
   } while (
     true
-    && !hasFoundTheFirstFoucusableParent
+    && !hasFoundTheFirstFocusableParent
     && !reachedNullElement
     && !reachedMaximumClimbLevels
   );
@@ -99,11 +98,11 @@ function makeVideoElementFullscreenable(element) {
 
   if (buttonIsAlreadyAdded) return;
 
-  const hasZoomButton = Array.from(firstFocusableParent.querySelectorAll('i'))
-    .some(p => p.innerHTML === "zoom_in");
+  const hasNativeActionButton = Array.from(firstFocusableParent.querySelectorAll('i'))
+    .some(p => ["zoom_in", "stylus_laser_pointer"].includes(p.innerHTML));
 
-  const fullscreenButtonElement = document.createElement("button")
-  fullscreenButtonElement.classList.add("google-meet-fullscreen-button")
+  const fullscreenButtonElement = document.createElement("button");
+  fullscreenButtonElement.classList.add("google-meet-fullscreen-button");
 
   fullscreenButtonElement.addEventListener("click", () => {
     if (!document.fullscreenElement) {
@@ -122,8 +121,8 @@ function makeVideoElementFullscreenable(element) {
     "google-meet-fullscreen-hide",
   );
 
-  if (hasZoomButton) {
-    fullscreenButtonContainer.classList.add("with-zoom-button");
+  if (hasNativeActionButton) {
+    fullscreenButtonContainer.classList.add("with-native-action-button");
   }
 
   const buttonIconElement = document.createElement("i")
@@ -151,8 +150,8 @@ function makeVideoElementFullscreenable(element) {
   firstFocusableParent.addEventListener("mouseleave", () => {
     fullscreenButtonContainer.classList.add(
       "google-meet-fullscreen-hide"
-    )
-  });
+    );
+  })
 }
 
 const styles = document.createElement('style')
@@ -181,15 +180,15 @@ styles.innerHTML = `
     cursor: pointer;
     transition: 0.25s ease-in;
   }
-
-  .google-meet-fullscreen-button-container.with-zoom-button {
+  
+  .google-meet-fullscreen-button-container.with-native-action-button {
     bottom: 4.6rem;
   }
 
   .google-meet-fullscreen-button-container:hover {
     filter: brightness(2);
   }
-
+  
   .google-meet-fullscreen-button {
     cursor: pointer;
     width: 100%;
