@@ -1,46 +1,38 @@
 // this code will be executed after page load
+const mutationCallback = (mutationsList) => {
+  const videoNodes = mutationsList
+    .filter(mutation => mutation.type === 'childList')
+    .reduce(
+      (acc, current) => (
+        [
+          ...acc,
+          ...Array.from(current.addedNodes)
+            .filter(node => node.tagName === "VIDEO"),
+        ]
+      ),
+      [],
+    );
 
-const timeoutToCheckTags = 200
+  videoNodes.forEach(videoNode => {
+    ["mouseover"].forEach(eventName => {
+      getFirstFocusableParent(videoNode)?.addEventListener(
+        eventName,
+        () => makeVideoElementFullscreenable(videoNode),
+      )
+    })
+  })
+};
 
-document.addEventListener(
-  'DOMNodeInserted',
-  (event) => {
-    setTimeout(() => {
-      makeVideoElementFullscreenable(event.target)
-    }, timeoutToCheckTags)
-  }
+new MutationObserver(mutationCallback).observe(
+  document.body,
+  {
+    childList: true,
+    subtree: true,
+  },
 );
 
-document.addEventListener(
-  'DOMNodeRemoved',
-  (event) => {
-    setTimeout(() => {
-      makeVideoElementFullscreenable(event.target)
-    }, timeoutToCheckTags)
-  }
-);
-
-["click", "resize", "fullscreenchange"].forEach(eventName => {
-  window.addEventListener(
-    eventName,
-    () => {
-      setTimeout(() => {
-        Array.from(document.querySelectorAll("video")).forEach(
-          (videoElement) => makeVideoElementFullscreenable(videoElement)
-        );
-      }, timeoutToCheckTags)
-    }
-  )
-})
-
-function makeVideoElementFullscreenable(element) {
-  if (!element) return;
-
-  if (element.tagName !== "VIDEO") return;
-
-  if (element.style?.display === "none") return;
-
-  let firstFocusableParent = element;
+function getFirstFocusableParent(videoNode) {
+  let firstFocusableParent = videoNode;
 
   let
     climbedDOMLevelsCount = 0,
@@ -83,6 +75,22 @@ function makeVideoElementFullscreenable(element) {
 
   if (reachedMaximumClimbLevels) return
 
+  return firstFocusableParent
+}
+
+function makeVideoElementFullscreenable(videoNode) {
+  if (!videoNode) return;
+
+  if (videoNode.tagName !== "VIDEO") return;
+
+  if (videoNode.style?.display === "none") return;
+
+  const firstFocusableParent = getFirstFocusableParent(videoNode)
+
+  if (!firstFocusableParent) {
+    return
+  }
+
   const containerElementToAddFullscreenButton = Array
     .from(firstFocusableParent.querySelectorAll("*"))
     .find(element => element.querySelector("button"))
@@ -106,13 +114,16 @@ function makeVideoElementFullscreenable(element) {
 
   fullscreenButtonElement.addEventListener("click", () => {
     if (!document.fullscreenElement) {
-      element.requestFullscreen().catch((err) => {
-        alert(`Error attempting to enable fullscreen mode: ${err.message} (${err.name})`);
+      videoNode.requestFullscreen().catch((err) => {
+        console.error(`Error attempting to enable fullscreen mode: ${err.message} (${err.name})`);
+        console.error(err);
       });
     } else {
       document.exitFullscreen();
     }
   });
+
+  firstFocusableParent.addEventListener("dblclick", () => fullscreenButtonElement.click());
 
   const fullscreenButtonContainer = document.createElement("div");
 
