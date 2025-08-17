@@ -1,0 +1,39 @@
+.google-meet-fullscreen-hide:not(:hover) {
+  opacity: 0 !important;
+}
+
+.google-meet-fullscreen-controls-container {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.google-meet-fullscreen-controls-container.with-native-action-button {
+  bottom: 4.6rem;
+}
+
+.google-meet-fullscreen-controls-button {
+  width: 2.8rem;
+  height: 2.8rem;
+  border-radius: 50%;
+  background-color: #2b2c2f80;
+  border: 1px solid #3635356b;
+  overflow: hidden;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  transition: 0.25s ease-in;
+}
+
+.google-meet-fullscreen-controls-button:hover {
+  filter: brightness(2);
+}
